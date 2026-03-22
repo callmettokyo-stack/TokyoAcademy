@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">📚 All Courses</h2>
+
+<div class="row">
+
+{% for course in courses %}
+
+<div class="col-md-4">
+  <div class="card mb-4 shadow">
+
+    <div class="card-body">
+      <h5 class="card-title">{{ course.title }}</h5>
+
+      <a href="/course/{{ course.id }}/" class="btn btn-primary">
+        เรียนเลย
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

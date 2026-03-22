@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="th"> 
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo Academy Dashboard</title> 
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar-container" id="sidebar">
+            <div class="brand-box">
+                <h3 class="brand-name">Tokyo Academy</h3>
+            </div>
+            <nav class="nav-links">
+                <a href="/dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="fa-regular fa-book"></i> Homeworks</a>
+            </nav>
+            <div class="nav-footer">
+                <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="/login/" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="mobile-top-bar">
+                <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+                <h3 class="brand-name-mobile">Tokyo Academy</h3>
+            </div>
+
+            <header class="header-flex">
+                <h2 class="title-text">Let Start Your New Course!</h2>
+            </header>
+
+            <div class="course-scroll-container">
+                <h3 class="section-subtitle">Your Courses</h3>
+                <div class="course-list-box">
+                    {% for course in courses %}
+                    <div class="list-item">
+                        <a href="/course/{{ course.id }}/" class="item-link">
+                            <span class="chapter-title">Chapter {{ forloop.counter }} {{ course.title }}</span>
+                            <i class="fa-solid fa-circle-chevron-right arrow-btn"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="list-item" style="padding: 20px; text-align: center; color: #999;">
+                        No courses available.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+
+        <aside class="widget-area">
+            <div class="widget-card notif">
+                <h4 class="widget-head">Notification</h4>
+                <div class="notif-bubble">You sent homework successfully!</div>
+            </div>
+            <div class="widget-card msg">
+                <h4 class="widget-head">Message</h4>
+                <div class="chat-sim">
+                    <div class="bubble-blue"></div>
+                    <div class="bubble-green"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.onclick = () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
+
+        overlay.onclick = () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+    </script>
+</body>
+    <style>
+        :root {
+            --main-bg: #EAE9E8;
+            --card-white: #ffffff;
+            --accent-blue: #4a90e2;
+            --light-blue: #e9f2ff;
+            --text-gray: #adb5bd;
+            --font-kanit: 'Kanit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-kanit); }
+        
+        body {
+            background-color: var(--main-bg);
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Layout Container */
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            width: 100%;
+            height: 100vh;
+            padding: 25px;
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar-container {
+            width: 260px;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 30px 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .brand-name { font-size: 24px; font-weight: 700; margin-bottom: 35px; padding-left: 15px; color: #333; }
+        .nav-links { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 500;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .nav-item i { margin-right: 15px; font-size: 18px; width: 20px; }
+        .nav-item:hover, .nav-item.active {background-color: var(--light-blue); color: var(--accent-blue);}
+        .nav-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .logout-btn:hover { background-color: #fff0f0; color: #ff5e5e; }
+
+        /* Content Area */
+        .content-area { overflow-y: auto; padding-right: 10px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .title-text { font-size: 28px; font-weight: 700; margin-bottom: 5px;}
+        .section-subtitle { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: var(--text-dark);
+            display: flex; justify-content: space-between;  }
+        
+        /* Scrollable Box */
+        .course-scroll-container {flex: 1; overflow-y: auto; padding-right: 5px; }
+        .course-scroll-container::-webkit-scrollbar { width: 5px; }
+        .course-scroll-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .course-list-box { background: var(--card-white); border-radius: 24px; overflow: hidden; }
+        .item-link {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 30px; text-decoration: none; color: #444;
+            border-bottom: 1px solid #f8f9fa; transition: 0.2s;
+        }
+        .item-link:hover { background-color: #fcfcfc; padding-left: 35px; }
+        .chapter-title {font-size: 16px; font-weight: 500; color: #333; border-bottom: 1px solid #f8f8f8; }
+        .arrow-btn { color: var(--accent-blue); font-size: 20px; }
+
+        /* Widgets */
+        .widget-area { display: flex; flex-direction: column; gap: 15px; }
+        .widget-card { background: var(--card-white); border-radius: 24px; padding: 20px 25px; flex: 1; }
+        .widget-head { color: #333; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        .notif-bubble { background: #fff5f6; color: #ff7675; padding: 12px; border-radius: 12px; font-size: 13px; }
+        .chat-sim .bubble-blue { height: 35px; width: 70%; background: #e3f2fd; border-radius: 12px 12px 12px 2px; margin: 10px 0; }
+        .chat-sim .bubble-green { height: 35px; width: 70%; background: #e8f5e9; border-radius: 12px 12px 2px 12px; margin: 10px 0 10px auto; }
+        
+        /* Mobile Bar */
+        .mobile-top-bar {
+                display: none;
+                background: var(--card-white);
+                padding: 15px 20px;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+        #menu-toggle {
+                background: none; border: none; font-size: 24px; color: var(--accent-blue); cursor: pointer;
+            }
+
+        @media (max-width: 850px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; padding: 20px; }
+            .sidebar-container {
+                position: fixed; left: -300px; top: 0; bottom: 0;
+                width: 280px; z-index: 1001; border-radius: 0 24px 24px 0;
+            }
+            .sidebar-container.active { left: 0; }
+            .mobile-top-bar { display: flex; position: sticky; top: 0; z-index: 1000; }
+            .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1000; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .table-box { padding: 15px 20px; }
+        }
+</style>
+</head>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo Academy Course</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar-container" id="sidebar">
+            <div class="brand-box">
+                <h3 class="brand-name">Tokyo Academy</h3>
+            </div>
+            <nav class="nav-links">
+                <a href="/dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="fa-regular fa-book"></i> Homeworks</a>
+            </nav>
+            <div class="nav-footer">
+                <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="/login/" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="mobile-top-bar">
+                <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+                <h3 class="brand-name-mobile">Tokyo Academy</h3>
+            </div>
+
+            <header class="header-flex">
+                <h2 class="title-text">{{ course.title }}</h2>
+            </header>
+
+            <div class="course-header">
+                <div class="progress-container">
+                    <p class="intro-text">Progress: {{ percent }}%</p>
+                    <div class="progress-track">
+                        <div class="progress-fill" style="width: {{ percent }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lesson-scroll-container">
+                {% for lesson in lessons %}
+                <div class="lesson-card">
+                    <div class="lesson-info">
+                        {% if lesson.id in completed_lessons %}
+                            <span class="status-badge success"><i class="fa-solid fa-circle-check"></i> เรียนแล้ว</span>
+                        {% else %}
+                            <span class="status-badge pending">ยังไม่เรียน</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="video-wrapper">
+                        <iframe id="videoPlayer" src="{{ lesson.video_url }}" allowfullscreen></iframe>
+                    </div>
+
+                    <div class="lesson-actions">
+                        <a href="/complete/{{ lesson.id }}/" class="btn-mark">
+                            <i class="fa-solid fa-check"></i> Mark as Complete
+                        </a>
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
+</body>
+    <style>
+        :root {
+            --main-bg: #EAE9E8;
+            --card-white: #ffffff;
+            --accent-blue: #4a90e2;
+            --light-blue: #e9f2ff;
+            --text-gray: #adb5bd;
+            --font-kanit: 'Kanit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-kanit); }
+        
+        body {
+            background-color: var(--main-bg);
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* Layout Container */
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            width: 100%;
+            height: 100vh;
+            padding: 25px;
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar-container {
+            width: 260px;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 30px 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .brand-name { font-size: 24px; font-weight: 700; margin-bottom: 35px; padding-left: 15px; color: #333; }
+        .nav-links { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 500;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .nav-item i { margin-right: 15px; font-size: 18px; width: 20px; }
+        .nav-item:hover, .nav-item.active {background-color: var(--light-blue); color: var(--accent-blue);}
+        .nav-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .logout-btn:hover { background-color: #fff0f0; color: #ff5e5e; }
+
+        /* Content Area */
+        .content-area { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+        .course-header { margin-bottom: 20px; }
+        .title-text { font-size: 28px; font-weight: 700; color: #2d3436; margin-bottom: 5px; }
+        .intro-text { font-size: 16px; color: #333; }
+
+        /* Progress Bar */
+        .progress-container { margin-top: 10px; }
+        .progress-track { background: #ddd; height: 8px; border-radius: 10px; margin-top: 5px; overflow: hidden; }
+        .progress-fill { background: var(--accent-blue); height: 100%; transition: width 0.5s ease;}
+
+        /* Lesson Scroll */
+        .lesson-scroll-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+        .lesson-scroll-container::-webkit-scrollbar { width: 5px; }
+        .lesson-scroll-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .lesson-card { 
+            background: var(--card-white); border-radius: 20px; padding: 20px; 
+            margin-bottom: 10px;
+        }
+        .lesson-info { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 500; }
+        .status-badge.success { background: #e8f5e9; color: #2e7d32; }
+        .status-badge.pending { background: #f5f5f5; color: #757575; }
+        .lesson-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .video-wrapper {  
+            position: relative; aspect-ratio: 16/9; max-height: 400px; width: 100%; max-width: 700px; margin: 0 auto 20px auto;
+            border-radius: 15px; overflow: hidden; background: #000; margin-bottom: 10px;
+        }
+        
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .btn-mark {
+            display: inline-block; padding: 10px 20px; background: #2e7d32; color: white;
+            text-decoration: none; border-radius: 10px; font-size: 14px; transition: 0.3s;
+        }
+        .btn-mark:hover { background: #1b5e20; }
+
+        /* Mobile Bar */
+        .mobile-top-bar {
+                display: none;
+                background: var(--card-white);
+                padding: 15px 20px;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+        #menu-toggle {
+                background: none; border: none; font-size: 24px; color: var(--accent-blue); cursor: pointer;
+            }
+
+        @media (max-width: 850px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; padding: 20px; }
+            .sidebar-container {
+                position: fixed; left: -300px; top: 0; bottom: 0;
+                width: 280px; z-index: 1001; border-radius: 0 24px 24px 0;
+            }
+            .sidebar-container.active { left: 0; }
+            .mobile-top-bar { display: flex; position: sticky; top: 0; z-index: 1000; }
+            .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1000; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .table-box { padding: 15px 20px; }
+        }
+</style>
+</head>
+</html>
