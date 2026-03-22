@@ -4,7 +4,7 @@ from .views import mark_complete, save_progress
 from . import views
 
 urlpatterns = [
-    path("login/", student_login),
+    path("", student_login),
     path("dashboard/", dashboard),
     path("courses/", course_list),
     path("course/<int:id>/", course_detail),
