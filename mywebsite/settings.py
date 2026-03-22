@@ -25,7 +25,8 @@ SECRET_KEY = "django-insecure-%d*dzcw_l$h%4$^^r9w1q5p_dpe*9ak##f-q)ex(a#_smu$eud
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# อนุญาตเฉพาะ domain ของ Render และ localhost สำหรับทดสอบ
+ALLOWED_HOSTS = ['tokyoacademy.onrender.com', '122.0.0.1', 'localhost']
 
 
 # Application definition
