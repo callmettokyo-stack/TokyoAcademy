@@ -26,8 +26,8 @@ SECRET_KEY = "django-insecure-%d*dzcw_l$h%4$^^r9w1q5p_dpe*9ak##f-q)ex(a#_smu$eud
 DEBUG = True
 
 # อนุญาตเฉพาะ domain ของ Render และ localhost สำหรับทดสอบ
-#ALLOWED_HOSTS = ['tokyoacademy.onrender.com', '122.0.0.1', 'localhost']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tokyoacademy.onrender.com', '122.0.0.1', 'localhost']
+#ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -122,3 +122,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# บอก Django ว่าหน้า Login คือหน้าแรกสุด ("/")
+LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/'  # เมื่อ Logout แล้ว ให้กลับไปที่หน้าแรกสุด
