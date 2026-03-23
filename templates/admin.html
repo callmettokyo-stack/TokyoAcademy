@@ -16,11 +16,11 @@
             <nav class="nav-links"> 
                 <a href="/admin-dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
                 <a href="/admin-users/" class="nav-item"><i class="fa-solid fa-users"></i> Users</a>
-                <a href="#" class="nav-item"><i class="fa-solid fa-book"></i> Courses</a>
+                <a href="{% url 'admin_courses_management' %}" class="nav-item"><i class="fa-solid fa-book"></i> Courses</a>
             </nav>
             <div class="nav-footer">
-                <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
-                <a href="/login/" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a><
+                <a href="{% url 'login' %}" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
         </aside>
 

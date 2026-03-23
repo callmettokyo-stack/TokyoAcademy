@@ -12,7 +12,6 @@ from django.contrib import messages
 def user_has_access(user, course):
     return course.students.filter(id=user.id).exists()
 
-# 🔒 Decorator: ให้เฉพาะ USER เข้า (กัน admin)
 def user_only(view_func):
     def wrapper(request, *args, **kwargs):
         if request.user.is_staff:
@@ -125,7 +124,6 @@ def admin_users_view(request):
         return HttpResponseForbidden("คุณไม่มีสิทธิ์")
 
     if request.method == "POST":
-        # กรณี A: อัปเดตข้อมูล (Edit User)
         if "update_user" in request.POST:
             user_id = request.POST.get("user_id")
             user = get_object_or_404(User, id=user_id)
@@ -136,7 +134,6 @@ def admin_users_view(request):
             messages.success(request, f"อัปเดตข้อมูลของ {user.username} เรียบร้อยแล้ว!")
             return redirect('admin_users')
 
-        # กรณี B: สร้างผู้ใช้ใหม่ (Add User)
         else:
             username = request.POST.get("username")
             is_staff = request.POST.get("is_staff") == "on"
@@ -144,7 +141,6 @@ def admin_users_view(request):
             if User.objects.filter(username=username).exists():
                 messages.error(request, f"ชื่อผู้ใช้ {username} มีอยู่ในระบบแล้ว")
             else:
-                # ✅ แก้ไข: เรียกผ่าน User.objects (UserManager)
                 password = get_random_string(length=10)
                 new_user = User.objects.create_user(username=username, password=password)
                 new_user.is_staff = is_staff
@@ -152,27 +148,99 @@ def admin_users_view(request):
                 messages.success(request, f"สร้างผู้ใช้ {username} สำเร็จ! รหัสผ่านคือ: {password}")
             return redirect('admin_users')
 
-    # แสดงผลหน้ารายการ
     users = User.objects.all().order_by('-id')
     return render(request, "admin_user.html", {"users": users})
 
 @login_required
 def delete_user(request, user_id):
     """ลบผู้ใช้และ Redirect กลับหน้าเดิมเสมอ"""
-    # 1. เช็คสิทธิ์ (ต้องเป็น Staff เท่านั้น)
     if not request.user.is_staff:
         return HttpResponseForbidden("คุณไม่มีสิทธิ์ลบผู้ใช้")
-
-    # 2. ดึงข้อมูล User
     user = get_object_or_404(User, id=user_id)
     username = user.username
-
-    # 3. ทำการลบ
     user.delete()
-    
-    # 4. แจ้งเตือน
     messages.success(request, f"ลบผู้ใช้ {username} เรียบร้อยแล้ว")
-    
-    # 5. สำคัญมาก: ต้องมี Return Redirect ตรงนี้!
     return redirect('admin_users')
+
+# ================= COURSE MANAGEMENT (ADMIN ONLY) =================
+
+@login_required
+def admin_courses_management(request):
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+    
+    courses = Course.objects.all().order_by('-id')
+    course_data = []
+    
+    all_students = User.objects.filter(is_staff=False)
+
+    for c in courses:
+        first_lesson = c.lessons.first()
+        video_url = first_lesson.video_url if first_lesson else ""
+        enrolled_students = list(c.students.values('id', 'username'))
+        enrolled_ids = [s['id'] for s in enrolled_students]
+
+        course_data.append({
+            'id': c.id,
+            'title': c.title,
+            'student_count': c.students.count(),
+            'video_url': c.lessons.first().video_url if c.lessons.exists() else "",
+            'enrolled_ids': list(c.students.values_list('id', flat=True))
+        })
+    
+    return render(request, "courses_admin.html", {
+        "courses": course_data,
+        "all_students": all_students 
+    })
+
+@login_required
+def create_course(request):
+    """สร้างคอร์สใหม่ (รูปที่ 2)"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+    
+    if request.method == "POST":
+        title = request.POST.get("title")
+        video_url = request.POST.get("video_url")
+        
+        if title:
+            new_course = Course.objects.create(title=title)
+            if video_url:
+                Lesson.objects.create(
+                    course=new_course, 
+                    title=f"Lesson 1", 
+                    video_url=video_url
+                )
+            messages.success(request, f"สร้างคอร์ส {title} เรียบร้อยแล้ว")
+    return redirect('admin_courses_management')
+
+@login_required
+def edit_course(request, course_id):
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+    
+    course = get_object_or_404(Course, id=course_id) 
+    if request.method == "POST":
+        course.title = request.POST.get("title")
+        course.save()
+        new_video_url = request.POST.get("video_url")
+        lesson, created = Lesson.objects.get_or_create(course=course, defaults={'title': 'Main Lesson'})
+        lesson.video_url = new_video_url
+        lesson.save()
+        student_ids = request.POST.getlist("students")
+        course.students.set(student_ids)
+        messages.success(request, f"อัปเดตคอร์ส {course.title} เรียบร้อยแล้ว")
+        return redirect("admin_courses_management") 
+    return redirect("admin_courses_management")
+
+@login_required
+def delete_course(request, course_id):
+    """ลบคอร์ส (รูปที่ 4)"""
+    if not request.user.is_staff:
+        return HttpResponseForbidden()
+    course = get_object_or_404(Course, id=course_id)
+    title = course.title
+    course.delete()
+    messages.success(request, f"ลบคอร์ส {title} เรียบร้อยแล้ว")
+    return redirect('admin_courses_management')
 

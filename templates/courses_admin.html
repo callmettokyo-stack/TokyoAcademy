@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tokyo Academy Admin - Courses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar-container" id="sidebar">
+            <div class="brand-box">
+                <h3 class="brand-name">Tokyo Academy</h3>
+            </div>
+            <nav class="nav-links"> 
+                <a href="/admin-dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="/admin-users/" class="nav-item"><i class="fa-solid fa-users"></i> Users</a>
+                <a href="{% url 'admin_courses_management' %}" class="nav-item"><i class="fa-solid fa-book"></i> Courses</a>
+            </nav>
+            <div class="nav-footer">
+                <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
+                <a href="{% url 'login' %}" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            {% if messages %}
+                {% for message in messages %}
+                    {% if "คอร์ส" in message.message or "Course" in message.message %}
+                        <div class="alert-box"><i class="fa-solid fa-circle-check"></i> {{ message }}</div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            <div class="mobile-top-bar">
+                <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+                <h3 class="brand-name-mobile">Tokyo Academy</h3>
+            </div>
+
+            <header class="header-flex">
+                <h2 class="title-text">Courses Management</h2>
+            </header>
+            
+            <section class="table-section">
+                <h3 class="section-subtitle">Courses List
+                    <button class="add-courses-btn" onclick="toggleModal('modal-create', true)">
+                        <i class="fa-solid fa-plus"></i> Add Courses
+                    </button>
+                </h3>
+                <div class="table-box">
+                    <table class="courses-table">
+                        <thead>
+                            <tr>
+                                <th>Courses Name</th>
+                                <th style="text-align: center;">Student</th>
+                                <th style="text-align: center;">Action</th> 
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in courses %}
+                            <tr>
+                                <td>{{ course.title }}</td>
+                                <td style="text-align: center;">{{ course.student_count }}</td>
+                                <td style="text-align: center;">
+                                    <button class="edit-btn" onclick="openEditModal('{{ course.id }}', '{{ course.title }}', '{{ course.video_url }}', {{ course.enrolled_ids|safe }})">
+                                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                                    </button>
+                                     <button class="delete-btn" onclick="openDeleteModal('{{ course.id }}', '{{ course.title }}')">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="modal-create" class="modal-overlay">
+        <div class="modal-card">
+            <h2 style="font-weight: 800;">Create New Courses</h2>
+            <form action="{% url 'create_course' %}" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Courses Name</label>
+                    <input type="text" name="title" placeholder="Courses Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Video url</label>
+                    <input type="text" name="video_url" placeholder="http://xxx.com/preview">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="toggleModal('modal-create', false)">Cancel</button>
+                    <button type="submit" class="btn-submit">Create Courses</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-edit" class="modal-overlay">
+        <div class="modal-card">
+            <h2 style="font-weight: 800;">Edit Lesson Info</h2>
+            <form id="edit-form" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Name Lesson</label>
+                    <input type="text" name="title" id="edit-title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Video url</label>
+                    <input type="text" name="video_url" id="edit-video-url" placeholder="http://xxx.com/preview">
+                </div>
+
+                <div class="form-group">
+                    <label>Student</label>
+                    <div class="student-selector">
+                        <div class="student-box" id="available-students">
+                            </div>
+                        <div style="font-weight: bold; color: #ccc;">➔</div>
+                        <div class="student-box" id="selected-students">
+                            </div>
+                    </div>
+                </div>
+                <div id="hidden-ids"></div> 
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="toggleModal('modal-edit', false)">Cancel</button>
+                    <button type="submit" class="btn-submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-delete" class="modal-overlay">
+        <div class="modal-card" style="text-align: center;">
+            <h2 style="font-weight: 800;">Delete Courses</h2>
+            <p id="delete-text" style="font-weight: 600;">Are you sure?</p>
+            <form id="delete-form" method="POST">
+                {% csrf_token %}
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="toggleModal('modal-delete', false)">Cancel</button>
+                    <button type="submit" class="btn-delete">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        });
+
+
+        function toggleModal(id, show) { document.getElementById(id).style.display = show ? 'flex' : 'none'; }
+        
+        function openDeleteModal(id, name) {
+            document.getElementById('delete-form').action = `/admin-courses/delete/${id}/`;
+            document.getElementById('delete-text').innerText = `Are you sure to delete Courses "${name}" ?`;
+            toggleModal('modal-delete', true);
+        }
+
+        const allStudentsData = [
+            {% for s in all_students %}
+                { id: {{ s.id }}, username: "{{ s.username }}" },
+            {% endfor %}
+        ];
+
+        function openEditModal(id, title, videoUrl, enrolledIds) {
+            document.getElementById('edit-form').action = `/admin-courses/edit/${id}/`;
+            document.getElementById('edit-title').value = title;
+            document.getElementById('edit-video-url').value = videoUrl || "";
+
+            const availableBox = document.getElementById('available-students');
+            const selectedBox = document.getElementById('selected-students');
+            
+            availableBox.innerHTML = '';
+            selectedBox.innerHTML = '';
+
+            const activeIds = enrolledIds || [];
+
+            allStudentsData.forEach(student => {
+                const div = document.createElement('div');
+                div.className = 'student-item';
+                div.dataset.id = student.id;
+                div.innerText = student.username;
+
+                if (activeIds.includes(student.id)) {
+                    // ถ้าลงทะเบียนแล้ว -> ไปอยู่กล่องขวา
+                    div.setAttribute('onclick', "moveStudent(this, 'available-students')");
+                    selectedBox.appendChild(div);
+                } else {
+                    // ถ้ายังไม่ลง -> ไปอยู่กล่องซ้าย
+                    div.setAttribute('onclick', "moveStudent(this, 'selected-students')");
+                    availableBox.appendChild(div);
+                }
+            });
+
+            toggleModal('modal-edit', true);
+        }
+
+        function moveStudent(el, targetId) {
+            document.getElementById(targetId).appendChild(el);
+            const nextTarget = (targetId === 'selected-students') ? 'available-students' : 'selected-students';
+            el.setAttribute('onclick', `moveStudent(this, '${nextTarget}')`);
+        }
+
+        document.getElementById('edit-form').onsubmit = function() {
+            const container = document.getElementById('hidden-ids');
+            container.innerHTML = '';
+            document.querySelectorAll('#selected-students .student-item').forEach(el => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'students';
+                input.value = el.dataset.id;
+                container.appendChild(input);
+            });
+        };
+    </script>
+</body>
+    <style>
+        :root { 
+            --main-bg: #EAE9E8;
+            --card-white: #ffffff;
+            --accent-blue: #4a90e2;
+            --light-blue: #e9f2ff;
+            --text-gray: #adb5bd;
+            --text-dark: #333;
+            --font-kanit: 'Kanit', sans-serif;
+            --success-bg: #D1FAE5;
+            --success-text: #065F46;
+            --danger-red: #ff5e5e;
+            --red-light: #F9C3C3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-kanit); }
+
+        body {
+            background-color: var(--main-bg);
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+        }
+
+         /* Layout Container */
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            width: 100%;
+            height: 100vh;
+            padding: 25px;
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Sidebar */
+        .sidebar-container {
+            width: 260px;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 30px 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+        .brand-name { font-size: 24px; font-weight: 700; margin-bottom: 35px; padding-left: 15px; color: #333; }
+        .nav-links { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 500;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .nav-item i { margin-right: 15px; font-size: 18px; width: 20px; }
+        .nav-item:hover, .nav-item.active {background-color: var(--light-blue); color: var(--accent-blue);}
+        .nav-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .logout-btn:hover { background-color: #fff0f0; color: #ff5e5e; }
+
+        /* Main Content Area */
+        .content-area { overflow-y: auto; padding-right: 10px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .title-text { font-size: 28px; font-weight: 700; margin-bottom: 5px;}
+        .alert-box { 
+            background: var(--success-bg); 
+            color: var(--success-text); 
+            padding: 15px 25px; 
+            border-radius: 15px; 
+            margin-bottom: 25px; 
+            font-weight: 600; 
+            border-left: 5px solid #10B981; 
+        }
+
+        /* Table Section */
+        .section-subtitle { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: var(--text-dark);
+            display: flex; justify-content: space-between;  }
+        .table-box { background: var(--card-white); border-radius: 24px; padding: 10px 20px; }
+        .courses-table { width: 100%; border-collapse: collapse; }
+        .courses-table th { text-align: left; padding: 10px 20px; font-size: 18px; font-weight: 700; color: #000; border-bottom: 1px solid #f8f8f8; }
+        .courses-table td { padding: 10px 20px; font-size: 16px; font-weight: 500; color: #333; border-bottom: 1px solid #f8f8f8; }
+        
+        /* Buttons Style */
+        .add-courses-btn { 
+            background-color: var(--card-white); 
+            color: var(--text-gray); 
+            padding: 12px 24px; 
+            border-radius: 15px; 
+            border: none; 
+            font-weight: 700; 
+            cursor: pointer; 
+            font-size: 16px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: 0.2s; 
+        }
+        .add-courses-btn:hover { background-color: var(--light-blue); color: var(--accent-blue); }
+        .delete-btn { color: var(--danger-red); text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; font-size: 17px; margin-left: 10px; } 
+        .edit-btn { color: var(--accent-blue); text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; font-size: 17px; }
+        .btn-cancel { flex: 1; background: #f5f5f5; color: #666; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .btn-submit { flex: 1; background: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .btn-delete { flex: 1; background: var(--red-light); color: var(--danger-red); border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer;  font-size: 16px; }
+
+
+        /* Modal Styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-card { background: white; padding: 40px; border-radius: 25px; width: 550px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 800; margin-bottom: 8px; }
+        .form-group input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #eee; background: #f9fafb; box-sizing: border-box; font-size: 16px;}
+        
+        /* Student Selector */
+        .student-selector { display: flex; align-items: center; gap: 15px; margin-top: 10px; }
+        .student-box { flex: 1; border: 1px solid #eee; background: #f9fafb; border-radius: 25px; height: 180px; padding: 15px; overflow-y: auto; }
+        .student-item { padding: 8px 12px; font-weight: 500; cursor: pointer; border-radius: 10px; margin-bottom: 5px; background: white; border: 1px solid #efefef; }
+        .student-item:hover { background: #e2e8f0; }
+        .modal-footer { display: flex; gap: 15px; margin-top: 30px; }
+    
+        /* Mobile Bar */
+        .mobile-top-bar {
+                display: none;
+                background: var(--card-white);
+                padding: 15px 20px;
+                justify-content: space-between;
+                align-items: center;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+        #menu-toggle {
+                background: none; border: none; font-size: 24px; color: var(--accent-blue); cursor: pointer;
+            }
+
+        @media (max-width: 850px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; padding: 20px; }
+            .sidebar-container {
+                position: fixed; left: -300px; top: 0; bottom: 0;
+                width: 280px; z-index: 1001; border-radius: 0 24px 24px 0;
+            }
+            .sidebar-container.active { left: 0; }
+            .mobile-top-bar { display: flex; position: sticky; top: 0; z-index: 1000; }
+            .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1000; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .table-box { padding: 15px 20px; }
+        }
+    </style>
+</head>
+</html>

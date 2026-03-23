@@ -16,18 +16,20 @@
             <nav class="nav-links"> 
                 <a href="/admin-dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
                 <a href="/admin-users/" class="nav-item"><i class="fa-solid fa-users"></i> Users</a>
-                <a href="#" class="nav-item"><i class="fa-solid fa-book"></i> Courses</a>
+                <a href="{% url 'admin_courses_management' %}" class="nav-item"><i class="fa-solid fa-book"></i> Courses</a>
             </nav>
             <div class="nav-footer">
                 <a href="#" class="nav-item"><i class="fa-solid fa-gear"></i> Settings</a>
-                <a href="/login/" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+                <a href="{% url 'login' %}" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
             </div>
         </aside>
 
         <main class="content-area">
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert-box"><i class="fa-solid fa-circle-check"></i> {{ message }}</div>
+                    {% if "ผู้ใช้" in message.message or "User" in message.message %}
+                        <div class="alert-box"><i class="fa-solid fa-circle-check"></i> {{ message }}</div>
+                    {% endif %}
                 {% endfor %}
             {% endif %}
 
@@ -104,7 +106,7 @@
                 </p>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal('addUserModal')">Cancel</button>
-                    <button type="submit" class="btn-primary" style="flex: 2;">Create User</button>
+                    <button type="submit" class="btn-primary" style="flex: 1;">Create User</button>
                 </div>
             </form>
         </div>
@@ -130,7 +132,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" onclick="closeModal('editUserModal')">Cancel</button>
-                    <button type="submit" name="update_user" class="btn-primary" style="flex: 2;">Save Changes</button>
+                    <button type="submit" name="update_user" class="btn-primary" style="flex: 1;">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -286,7 +288,7 @@
             transition: 0.2s; 
         }
         .add-user-btn:hover { background-color: var(--light-blue); color: var(--accent-blue); }
-        .btn-primary { background: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; }
+        .btn-primary { flex: 1; background: var(--accent-blue); color: white; border: none; padding: 12px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 16px; }
         .delete-btn { color: var(--danger-red); text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; font-size: 17px; margin-left: 10px; } 
         .edit-btn { color: var(--accent-blue); text-decoration: none; font-weight: 600; cursor: pointer; border: none; background: none; font-size: 17px; }
         
