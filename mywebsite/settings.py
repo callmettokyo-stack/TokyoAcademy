@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-%d*dzcw_l$h%4$^^r9w1q5p_dpe*9ak##f-q)ex(a#_smu$eud"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # อนุญาตเฉพาะ domain ของ Render และ localhost สำหรับทดสอบ
 ALLOWED_HOSTS = ['tokyoacademy.onrender.com', '122.0.0.1', 'localhost']
@@ -77,11 +77,14 @@ WSGI_APPLICATION = "mywebsite.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.environ.get("DATABASE_URL")
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
     )
 }
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
