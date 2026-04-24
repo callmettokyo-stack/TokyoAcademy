@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 # กำหนด Username และ Password ที่คุณต้องการที่นี่
 username = 'admin'
 email = 'admin@example.com'
-password = 'YourNewPassword123' # <-- แก้รหัสผ่านที่อยากได้ตรงนี้
+password = '1234' # <-- แก้รหัสผ่านที่อยากได้ตรงนี้
 
 if not User.objects.filter(username=username).exists():
     User.objects.create_superuser(username, email, password)
