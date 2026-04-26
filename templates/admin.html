@@ -6,8 +6,115 @@
     <title>Tokyo Academy Admin - Users</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --main-bg: #EAE9E8;
+            --card-white: #ffffff;
+            --accent-blue: #4a90e2;
+            --light-blue: #e9f2ff;
+            --text-gray: #adb5bd;
+            --font-kanit: 'Kanit', sans-serif;
+        }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-kanit); }
+
+        body {
+            background-color: var(--main-bg);
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        /* เพิ่ม CSS ให้ตัวเลขนาฬิกานิ่ง */
+        #current-date {
+            font-variant-numeric: tabular-nums;
+            display: inline-block;
+            min-width: 100px;
+            text-align: right;
+        }
+
+        .dashboard-wrapper {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            width: 100%;
+            height: 100vh;
+            padding: 25px;
+            gap: 25px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .sidebar-container {
+            width: 260px;
+            background: var(--card-white);
+            border-radius: 24px;
+            padding: 30px 15px 15px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .brand-name { font-size: 24px; font-weight: 700; margin-bottom: 35px; padding-left: 15px; color: #333; }
+        .nav-links { flex: 1; }
+        .nav-item {
+            display: flex; align-items: center;
+            padding: 14px 20px;
+            text-decoration: none;
+            color: var(--text-gray);
+            font-weight: 500;
+            border-radius: 15px;
+            margin-bottom: 8px;
+            transition: 0.2s;
+        }
+        .nav-item i { margin-right: 15px; font-size: 18px; width: 20px; }
+        .nav-item:hover, .nav-item.active { background-color: var(--light-blue); color: var(--accent-blue); }
+        .nav-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+        .logout-btn:hover { background-color: #fff0f0; color: #ff5e5e; }
+
+        .content-area { overflow-y: auto; padding-right: 10px; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .title-text { font-size: 28px; font-weight: 700; margin-bottom: 5px;}
+        .date-badge { background: white; padding: 10px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 35px 30px; border-radius: 20px; display: flex; flex-direction: column; }
+        .stat-number { font-size: 40px; font-weight: 800; line-height: 1; margin-bottom: 10px; }
+        .stat-label { font-size: 20px; font-weight: 600; }
+
+        .section-subtitle { font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+        .table-box { background: white; border-radius: 24px; padding: 15px 40px; }
+        .custom-table { width: 100%; border-collapse: collapse; }
+        .custom-table th { text-align: left; padding: 20px 0; font-size: 18px; font-weight: 700; color: #000; }
+        .custom-table td { padding: 16px 0; font-size: 18px; font-weight: 500; }
+        .student-count-td { text-align: center; }
+
+        .overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1000;
+        }
+        .overlay.active { display: block; }
+
+        .mobile-top-bar {
+            display: none; background: var(--card-white); padding: 15px 20px;
+            justify-content: space-between; align-items: center;
+        }
+
+        @media (max-width: 850px) {
+            .dashboard-wrapper { grid-template-columns: 1fr; padding: 20px; }
+            .sidebar-container {
+                position: fixed; left: -300px; top: 0; bottom: 0;
+                width: 280px; z-index: 1001; border-radius: 0 24px 24px 0;
+            }
+            .sidebar-container.active { left: 0; }
+            .mobile-top-bar { display: flex; }
+        }
+    </style>
+</head>
 <body>
+    <div class="overlay" id="overlay"></div>
+
     <div class="dashboard-wrapper">
         <aside class="sidebar-container" id="sidebar">
             <div class="brand-box">
@@ -34,9 +141,8 @@
                 <div class="welcome-text">
                     <h2 class="title-text">Welcome!</h2>
                 </div>
-                
                 <div class="date-badge">
-                    <span id="current-date">Friday 20 Mar 2026 20:00</span>
+                    <span id="current-date">Loading...</span>
                 </div>
             </header>
 
@@ -82,30 +188,48 @@
     </div>
 
     <script>
+        // Sidebar Logic
         const menuToggle = document.getElementById('menu-toggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
 
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-        });
+        if(menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                sidebar.classList.add('active');
+                overlay.classList.add('active');
+            });
+        }
 
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
+        if(overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        }
 
+        // Real-time Clock Logic
         function updateClock() {
             const now = new Date();
             const options = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
-            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('current-date').textContent = `${now.toLocaleDateString('en-GB', options)} ${timeStr}`;
+            const timeStr = now.toLocaleTimeString('en-GB', { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit', 
+                hour12: false 
+            });
+            const dateStr = now.toLocaleDateString('en-GB', options);
+            
+            const element = document.getElementById('current-date');
+            if(element) {
+                element.textContent = `${dateStr} ${timeStr}`;
+            }
         }
+
         setInterval(updateClock, 1000);
         updateClock();
     </script>
 </body>
+<<<<<<< HEAD
 
     <style>
         :root {
@@ -216,3 +340,6 @@
     </style>
 </head>
 </html>
+=======
+</html>
+>>>>>>> fix

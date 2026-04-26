@@ -7,83 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-<body>
-    <div class="dashboard-wrapper">
-        <aside class="sidebar-container" id="sidebar">
-            <div class="brand-box">
-                <h3 class="brand-name">Tokyo Academy</h3>
-            </div>
-            <nav class="nav-links">
-                <a href="/dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
-                <a href="#" class="nav-item"><i class="fa-regular fa-book"></i> Homeworks</a>
-            </nav>
-            <div class="nav-footer">
-                <a href="% url 'login' %" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
-            </div>
-        </aside>
-
-        <main class="content-area">
-            <div class="mobile-top-bar">
-                <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
-                <h3 class="brand-name-mobile">Tokyo Academy</h3>
-            </div>
-
-            <header class="header-flex">
-                <h2 class="title-text">{{ course.title }}</h2>
-            </header>
-
-            <div class="course-header">
-                <div class="progress-container">
-                    <p class="intro-text">Progress: {{ percent }}%</p>
-                    <div class="progress-track">
-                        <div class="progress-fill" style="width: {{ percent }}%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lesson-scroll-container">
-                {% for lesson in lessons %}
-                <div class="lesson-card">
-                    <div class="lesson-info">
-                        {% if lesson.id in completed_lessons %}
-                            <span class="status-badge success"><i class="fa-solid fa-circle-check"></i> เรียนแล้ว</span>
-                        {% else %}
-                            <span class="status-badge pending">ยังไม่เรียน</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="video-wrapper">
-                        <iframe id="videoPlayer" src="{{ lesson.video_url }}" allowfullscreen></iframe>
-                    </div>
-
-                    <div class="lesson-actions">
-                        <a href="/complete/{{ lesson.id }}/" class="btn-mark">
-                            <i class="fa-solid fa-check"></i> Mark as Complete
-                        </a>
-                    </div>
-
-                </div>
-                {% endfor %}
-            </div>
-        </main>
-    </div>
-
-    <script>
-        const menuToggle = document.getElementById('menu-toggle');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-
-        menuToggle.addEventListener('click', () => {
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-        });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-    </script>
-</body>
     <style>
         :root {
             --main-bg: #EAE9E8;
@@ -145,15 +68,38 @@
 
         /* Content Area */
         .content-area { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
-        .course-header { margin-bottom: 20px; }
-        .title-text { font-size: 28px; font-weight: 700; color: #2d3436; margin-bottom: 5px; }
-        .intro-text { font-size: 16px; color: #333; }
-
-        /* Progress Bar */
-        .progress-container { margin-top: 10px; }
-        .progress-track { background: #ddd; height: 8px; border-radius: 10px; margin-top: 5px; overflow: hidden; }
-        .progress-fill { background: var(--accent-blue); height: 100%; transition: width 0.5s ease;}
-
+        
+        .header-flex { 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            margin-bottom: 30px;
+            width: 100%;
+        }
+        .title-group { display: flex; align-items: center; gap: 15px; }
+        .title-text { font-size: 28px; font-weight: 700; color: #2d3436; }
+        
+        /*ปุ่ม Back */
+        .btn-back {   
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #4a90e2; 
+            color: white;        
+            text-decoration: none;
+            border-radius: 50px; 
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);       
+        }
+        .btn-back:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+            color: white;
+        }
+        
         /* Lesson Scroll */
         .lesson-scroll-container {
             flex: 1;
@@ -162,39 +108,38 @@
         }
         .lesson-scroll-container::-webkit-scrollbar { width: 5px; }
         .lesson-scroll-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        
         .lesson-card { 
-            background: var(--card-white); border-radius: 20px; padding: 20px; 
-            margin-bottom: 10px;
+            background: var(--card-white); 
+            border-radius: 20px; 
+            padding: 30px; 
+            margin-bottom: 20px;
         }
-        .lesson-info { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 15px; }
-        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: 500; }
-        .status-badge.success { background: #e8f5e9; color: #2e7d32; }
-        .status-badge.pending { background: #f5f5f5; color: #757575; }
-        .lesson-actions { display: flex; justify-content: flex-end; margin-top: 10px; }
+
         .video-wrapper {  
-            position: relative; aspect-ratio: 16/9; max-height: 400px; width: 100%; max-width: 700px; margin: 0 auto 20px auto;
-            border-radius: 15px; overflow: hidden; background: #000; margin-bottom: 10px;
+            position: relative; 
+            aspect-ratio: 16/9; 
+            width: 100%; 
+            max-width: 850px; 
+            margin: 0 auto;
+            border-radius: 15px; 
+            overflow: hidden; 
+            background: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
         .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .btn-mark {
-            display: inline-block; padding: 10px 20px; background: #2e7d32; color: white;
-            text-decoration: none; border-radius: 10px; font-size: 14px; transition: 0.3s;
-        }
-        .btn-mark:hover { background: #1b5e20; }
 
         /* Mobile Bar */
         .mobile-top-bar {
-                display: none;
-                background: var(--card-white);
-                padding: 15px 20px;
-                justify-content: space-between;
-                align-items: center;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            }
-        #menu-toggle {
-                background: none; border: none; font-size: 24px; color: var(--accent-blue); cursor: pointer;
-            }
+            display: none;
+            background: var(--card-white);
+            padding: 15px 20px;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        #menu-toggle { background: none; border: none; font-size: 24px; color: var(--accent-blue); cursor: pointer; }
 
         @media (max-width: 850px) {
             .dashboard-wrapper { grid-template-columns: 1fr; padding: 20px; }
@@ -204,10 +149,65 @@
             }
             .sidebar-container.active { left: 0; }
             .mobile-top-bar { display: flex; position: sticky; top: 0; z-index: 1000; }
-            .overlay.active { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1000; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .table-box { padding: 15px 20px; }
         }
-</style>
+    </style>
 </head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar-container" id="sidebar">
+            <div class="brand-box">
+                <h3 class="brand-name">Tokyo Academy</h3>
+            </div>
+            <nav class="nav-links">
+                <a href="/dashboard/" class="nav-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <a href="#" class="nav-item"><i class="fa-regular fa-book"></i> Homeworks</a>
+            </nav>
+            <div class="nav-footer">
+                <a href="{% url 'login' %}" class="nav-item logout-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="mobile-top-bar">
+                <button id="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+                <h3 class="brand-name-mobile">Tokyo Academy</h3>
+            </div>
+
+            <header class="header-flex">
+                <h2 class="title-text">{{ course.title }}</h2>
+                <a href="/dashboard/" class="btn-back">
+                    <i class="fa-solid fa-chevron-left"></i> Back
+                </a>
+            </header>
+
+            <div class="lesson-scroll-container">
+                {% for lesson in lessons %}
+                <div class="lesson-card">
+                    <div class="video-wrapper">
+                        <iframe id="videoPlayer" src="{{ lesson.video_url }}" allowfullscreen></iframe>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        document.body.appendChild(overlay);
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
+</body>
 </html>
